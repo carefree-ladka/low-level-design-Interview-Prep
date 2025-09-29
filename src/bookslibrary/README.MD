@@ -75,6 +75,322 @@ bookslibrary/
         └── DefaultFineStrategy.java
 ```
 
+## UML Diagram
+
+```mermaid
+classDiagram
+    %% Enums
+    class BookStatus {
+        <<enumeration>>
+        AVAILABLE
+        CHECKED_OUT
+        RESERVED
+        LOST
+    }
+
+    class UserType {
+        <<enumeration>>
+        STUDENT
+        FACULTY
+        GUEST
+    }
+
+    %% Exceptions
+    class BookNotAvailableException {
+        <<exception>>
+    }
+
+    class LibraryException {
+        <<exception>>
+    }
+
+    class MaxBooksIssuedException {
+        <<exception>>
+    }
+
+    class UserNotFoundException {
+        <<exception>>
+    }
+
+    %% Factory
+    class IdGenerator {
+        +generate() String
+    }
+
+    %% Model - User Hierarchy
+    class BaseUser {
+        <<abstract>>
+        -String id
+        -String name
+        -String email
+        -UserType userType
+        -int maxBooksAllowed
+        +getId() String
+        +getName() String
+        +getEmail() String
+        +getUserType() UserType
+        +getMaxBooksAllowed() int
+    }
+
+    class Student {
+        +Student(String id, String name, String email)
+    }
+
+    class Faculty {
+        +Faculty(String id, String name, String email)
+    }
+
+    class Guest {
+        +Guest(String id, String name, String email)
+    }
+
+    %% Model - Book Related
+    class Book {
+        -String id
+        -String title
+        -String author
+        -String isbn
+        -String publisher
+        -List~String~ categories
+        +Book(String id, String title, String author, String isbn, String publisher, List~String~ categories)
+        +getId() String
+        +getTitle() String
+        +getAuthor() String
+        +getIsbn() String
+        +getPublisher() String
+        +getCategories() List~String~
+    }
+
+    class BookItem {
+        -String id
+        -Book book
+        -BookStatus status
+        -String rackLocation
+        +BookItem(String id, Book book, BookStatus status, String rackLocation)
+        +getId() String
+        +getBook() Book
+        +getStatus() BookStatus
+        +setStatus(BookStatus status)
+        +getRackLocation() String
+    }
+
+    class Loan {
+        -String id
+        -String userId
+        -String bookItemId
+        -LocalDate issueDate
+        -LocalDate dueDate
+        -LocalDate returnDate
+        -double fine
+        +Loan(String id, String userId, String bookItemId, LocalDate issueDate, LocalDate dueDate)
+        +getId() String
+        +getUserId() String
+        +getBookItemId() String
+        +getIssueDate() LocalDate
+        +getDueDate() LocalDate
+        +getReturnDate() LocalDate
+        +setReturnDate(LocalDate date)
+        +getFine() double
+        +setFine(double fine)
+    }
+
+    class User {
+        -String id
+        -String name
+        -String email
+        +User(String id, String name, String email)
+        +getId() String
+        +getName() String
+        +getEmail() String
+    }
+
+    %% Repository Interfaces
+    class IBookRepository {
+        <<interface>>
+        +save(Book book)
+        +findById(String id) Book
+        +findAll() List~Book~
+        +searchByTitle(String title) List~Book~
+        +searchByAuthor(String author) List~Book~
+        +searchByIsbn(String isbn) Book
+    }
+
+    class IBookItemRepository {
+        <<interface>>
+        +save(BookItem item)
+        +findById(String id) BookItem
+        +findByBookId(String bookId) List~BookItem~
+        +findByStatus(BookStatus status) List~BookItem~
+    }
+
+    class ILoanRepository {
+        <<interface>>
+        +save(Loan loan)
+        +findById(String id) Loan
+        +findByUserId(String userId) List~Loan~
+        +findByBookItemId(String bookItemId) Loan
+        +findActiveLoans() List~Loan~
+    }
+
+    class IUserRepository {
+        <<interface>>
+        +save(BaseUser user)
+        +findById(String id) BaseUser
+        +findAll() List~BaseUser~
+    }
+
+    %% Repository Implementations
+    class InMemoryBookRepository {
+        -Map~String,Book~ books
+        +save(Book book)
+        +findById(String id) Book
+        +findAll() List~Book~
+        +searchByTitle(String title) List~Book~
+        +searchByAuthor(String author) List~Book~
+        +searchByIsbn(String isbn) Book
+    }
+
+    class InMemoryBookItemRepository {
+        -Map~String,BookItem~ bookItems
+        +save(BookItem item)
+        +findById(String id) BookItem
+        +findByBookId(String bookId) List~BookItem~
+        +findByStatus(BookStatus status) List~BookItem~
+    }
+
+    class InMemoryLoanRepository {
+        -Map~String,Loan~ loans
+        +save(Loan loan)
+        +findById(String id) Loan
+        +findByUserId(String userId) List~Loan~
+        +findByBookItemId(String bookItemId) Loan
+        +findActiveLoans() List~Loan~
+    }
+
+    class InMemoryUserRepository {
+        -Map~String,BaseUser~ users
+        +save(BaseUser user)
+        +findById(String id) BaseUser
+        +findAll() List~BaseUser~
+    }
+
+    %% Service Interfaces
+    class ICatalogService {
+        <<interface>>
+        +addBook(Book book)
+        +removeBook(String bookId)
+        +searchByTitle(String title) List~Book~
+        +searchByAuthor(String author) List~Book~
+        +searchByIsbn(String isbn) Book
+    }
+
+    class ICirculationService {
+        <<interface>>
+        +checkout(String userId, String bookItemId) Loan
+        +returnBook(String bookItemId) double
+        +renew(String bookItemId) Loan
+        +getLoansForUser(String userId) List~Loan~
+    }
+
+    class INotificationService {
+        <<interface>>
+        +sendOverdueNotification(BaseUser user, BookItem bookItem)
+        +sendCheckoutConfirmation(BaseUser user, BookItem bookItem)
+        +sendReturnConfirmation(BaseUser user, BookItem bookItem)
+    }
+
+    %% Service Implementations
+    class CatalogService {
+        -IBookRepository bookRepository
+        +CatalogService(IBookRepository bookRepository)
+        +addBook(Book book)
+        +removeBook(String bookId)
+        +searchByTitle(String title) List~Book~
+        +searchByAuthor(String author) List~Book~
+        +searchByIsbn(String isbn) Book
+    }
+
+    class CirculationService {
+        -IBookItemRepository bookItemRepository
+        -IUserRepository userRepository
+        -ILoanRepository loanRepository
+        -IFineCalculationStrategy fineStrategy
+        -INotificationService notificationService
+        +CirculationService(...)
+        +checkout(String userId, String bookItemId) Loan
+        +returnBook(String bookItemId) double
+        +renew(String bookItemId) Loan
+        +getLoansForUser(String userId) List~Loan~
+    }
+
+    class NotificationService {
+        +sendOverdueNotification(BaseUser user, BookItem bookItem)
+        +sendCheckoutConfirmation(BaseUser user, BookItem bookItem)
+        +sendReturnConfirmation(BaseUser user, BookItem bookItem)
+    }
+
+    %% Strategy Pattern
+    class IFineCalculationStrategy {
+        <<interface>>
+        +calculateFine(Loan loan) double
+    }
+
+    class DefaultFineStrategy {
+        -double finePerDay
+        +DefaultFineStrategy(double finePerDay)
+        +calculateFine(Loan loan) double
+    }
+
+    %% Main Class
+    class Main {
+        +main()
+    }
+
+    %% Relationships - Inheritance
+    Student --|> BaseUser
+    Faculty --|> BaseUser
+    Guest --|> BaseUser
+    InMemoryBookRepository ..|> IBookRepository
+    InMemoryBookItemRepository ..|> IBookItemRepository
+    InMemoryLoanRepository ..|> ILoanRepository
+    InMemoryUserRepository ..|> IUserRepository
+    CatalogService ..|> ICatalogService
+    CirculationService ..|> ICirculationService
+    NotificationService ..|> INotificationService
+    DefaultFineStrategy ..|> IFineCalculationStrategy
+
+    %% Relationships - Associations
+    BookItem o-- Book
+    BookItem o-- BookStatus
+    BaseUser o-- UserType
+    Loan --> BaseUser : userId
+    Loan --> BookItem : bookItemId
+
+    %% Service Dependencies
+    CatalogService o-- IBookRepository
+    CirculationService o-- IBookItemRepository
+    CirculationService o-- IUserRepository
+    CirculationService o-- ILoanRepository
+    CirculationService o-- IFineCalculationStrategy
+    CirculationService o-- INotificationService
+
+    %% Main Dependencies
+    Main ..> ICatalogService
+    Main ..> ICirculationService
+    Main ..> INotificationService
+    Main ..> IBookRepository
+    Main ..> IBookItemRepository
+    Main ..> IUserRepository
+    Main ..> ILoanRepository
+    Main ..> Student
+    Main ..> Faculty
+    Main ..> Guest
+    Main ..> Book
+    Main ..> BookItem
+    Main ..> DefaultFineStrategy
+    Main ..> IdGenerator
+```
+
 ---
 
 ## Key Design Decisions
