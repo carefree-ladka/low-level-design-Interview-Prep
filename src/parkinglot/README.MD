@@ -105,6 +105,160 @@ LowLevelDesign-Prep/
 └── README.md
 ```
 
+## UML Diagram
+
+```mermaid
+classDiagram
+    %% Enums
+    class VehicleType {
+        <<enumeration>>
+        BIKE
+        CAR
+        TRUCK
+    }
+
+    %% Exceptions
+    class ParkingFullException {
+        <<exception>>
+        +ParkingFullException(String message)
+    }
+
+    %% Factory
+    class VehicleFactory {
+        +createVehicle(VehicleType type, String licensePlate) Vehicle$
+    }
+
+    %% Model Classes
+    class Vehicle {
+        <<abstract>>
+        -String licensePlate
+        -VehicleType type
+        +Vehicle(String licensePlate, VehicleType type)
+        +getLicensePlate() String
+        +getType() VehicleType
+    }
+
+    class Bike {
+        +Bike(String licensePlate)
+    }
+
+    class Car {
+        +Car(String licensePlate)
+    }
+
+    class ParkingSpot {
+        -int spotNumber
+        -VehicleType vehicleType
+        -boolean isOccupied
+        -Vehicle currentVehicle
+        +ParkingSpot(int spotNumber, VehicleType vehicleType)
+        +getSpotNumber() int
+        +getVehicleType() VehicleType
+        +isOccupied() boolean
+        +occupySpot(Vehicle vehicle)
+        +vacateSpot()
+        +getCurrentVehicle() Vehicle
+    }
+
+    class Ticket {
+        -String ticketId
+        -Vehicle vehicle
+        -ParkingSpot parkingSpot
+        -LocalDateTime entryTime
+        -LocalDateTime exitTime
+        +Ticket(String ticketId, Vehicle vehicle, ParkingSpot spot, LocalDateTime entryTime)
+        +getTicketId() String
+        +getVehicle() Vehicle
+        +getParkingSpot() ParkingSpot
+        +getEntryTime() LocalDateTime
+        +getExitTime() LocalDateTime
+        +setExitTime(LocalDateTime exitTime)
+        +getDurationInHours() long
+    }
+
+    %% Service Classes
+    class ParkingService {
+        -List~ParkingSpot~ parkingSpots
+        -Map~String,Ticket~ activeTickets
+        -int ticketCounter
+        +ParkingService(int totalSpots)
+        +parkVehicle(Vehicle vehicle) Ticket
+        +unparkVehicle(String ticketId) Ticket
+        -findAvailableSpot(VehicleType type) ParkingSpot
+        -initializeParkingSpots(int totalSpots)
+    }
+
+    class PaymentService {
+        -PricingStrategy pricingStrategy
+        +PaymentService(PricingStrategy strategy)
+        +processPayment(Ticket ticket) double
+        +setPricingStrategy(PricingStrategy strategy)
+    }
+
+    %% Strategy Pattern
+    class PricingStrategy {
+        <<interface>>
+        +calculatePrice(Ticket ticket) double
+    }
+
+    class HourlyPricingStrategy {
+        -double baseRate
+        -Map~VehicleType,Double~ vehicleTypeMultiplier
+        +HourlyPricingStrategy()
+        +calculatePrice(Ticket ticket) double
+    }
+
+    class WeekendPricingStrategy {
+        -double weekendRate
+        -Map~VehicleType,Double~ vehicleTypeMultiplier
+        +WeekendPricingStrategy()
+        +calculatePrice(Ticket ticket) double
+    }
+
+    %% Utils
+    class DateUtils {
+        +getCurrentDateTime() LocalDateTime$
+        +calculateDurationInHours(LocalDateTime start, LocalDateTime end) long$
+        +isWeekend(LocalDateTime dateTime) boolean$
+    }
+
+    %% Main Class
+    class Main {
+        +main()
+    }
+
+    %% Relationships - Inheritance
+    Bike --|> Vehicle
+    Car --|> Vehicle
+    HourlyPricingStrategy ..|> PricingStrategy
+    WeekendPricingStrategy ..|> PricingStrategy
+
+    %% Relationships - Associations
+    Vehicle o-- VehicleType
+    ParkingSpot o-- VehicleType
+    ParkingSpot o-- Vehicle : currentVehicle
+    Ticket o-- Vehicle
+    Ticket o-- ParkingSpot
+
+    %% Service Dependencies
+    ParkingService o-- ParkingSpot : manages
+    ParkingService o-- Ticket : creates
+    PaymentService o-- PricingStrategy : uses
+    VehicleFactory ..> Vehicle : creates
+    VehicleFactory ..> Bike : creates
+    VehicleFactory ..> Car : creates
+
+    %% Main Dependencies
+    Main ..> ParkingService : uses
+    Main ..> PaymentService : uses
+    Main ..> VehicleFactory : uses
+    Main ..> HourlyPricingStrategy : uses
+    Main ..> Vehicle : uses
+    Main ..> Ticket : uses
+    Main ..> VehicleType : uses
+    Main ..> ParkingFullException : handles
+```
+
 ## Getting Started
 
 ### Prerequisites
