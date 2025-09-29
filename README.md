@@ -136,11 +136,11 @@ Interviewers assess several key capabilities during LLD interviews:
 Below is a list of commonly asked low-level design (LLD) problems for Java interviews, roughly ordered by frequency.
 
 ## 1. High-Frequency Questions
-- **Snake & Ladder Game**
-- **Tic Tac Toe** (including max 3 token variant)
-- **Parking Lot System**
-- **Elevator System**
-- **Library Management System**
+- **Snake & Ladder Game** — [Code Repo](https://github.com/carefree-ladka/low-level-design-Interview-Prep/tree/main/src/snakeandladder)  
+- **Tic Tac Toe** (including max 3 token variant)  
+- **Parking Lot System** — [Code Repo](https://github.com/carefree-ladka/low-level-design-Interview-Prep/tree/main/src/parkinglot)  
+- **Elevator System** — [Code Repo](https://github.com/carefree-ladka/low-level-design-Interview-Prep/tree/main/src/elevatorsystem)  
+- **Library Management System** — [Code Repo](https://github.com/carefree-ladka/low-level-design-Interview-Prep/tree/main/src/bookslibrary)  
 - **ATM System**
 
 ## 2. Medium-Frequency Questions
