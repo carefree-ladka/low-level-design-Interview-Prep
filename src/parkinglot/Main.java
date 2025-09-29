@@ -7,8 +7,6 @@ import parkinglot.service.PaymentService;
 import parkinglot.strategy.HourlyPricingStrategy;
 
 void main() {
-    //TIP Press <shortcut actionId="ShowIntentionActions"/> with your caret at the highlighted text
-    // to see how IntelliJ IDEA suggests fixing it.
     try {
         ParkingService parkingService = new ParkingService(2);
         PaymentService paymentService = new PaymentService(new HourlyPricingStrategy());
@@ -31,3 +29,4 @@ void main() {
         IO.println("Error: " + e.getMessage());
     }
 }
+
