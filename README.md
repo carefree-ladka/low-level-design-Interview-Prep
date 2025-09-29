@@ -95,6 +95,7 @@ Interviewers assess several key capabilities during LLD interviews:
 
 **Functional:**  
 - What should the system do?
+  
 **Non-functional:**  
 - Scale, performance, constraints
 **Scope boundaries:**  
